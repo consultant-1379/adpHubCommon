@@ -1,0 +1,27 @@
+modelVersion: 2.0
+
+docker-images:
+  - adp-release-auto: armdocker.rnd.ericsson.se/proj-adp-cicd-drop/bob-adp-release-auto:latest
+
+properties:
+  - credential-id-munin: munin_token
+
+env:
+  - JENKINS_USERNAME
+  - JENKINS_PASSWORD
+  - MUNIN_TOKEN
+
+rules:
+  jenkins-munin-credential-update:
+    - task: munin-update
+      docker-image: adp-release-auto
+      docker-flags:
+        - --env JENKINS_USERNAME
+        - --env JENKINS_PASSWORD
+        - --env MUNIN_TOKEN=${env.MUNIN_TOKEN}
+      cmd: munin-jenkins update-secret-text
+           -t ${env.MUNIN_TOKEN}
+           --jenkins-credential-id ${credential-id-munin}
+           --jenkins-username ${env.JENKINS_USERNAME}
+           --jenkins-password ${env.JENKINS_PASSWORD}
+           --server https://fem41s11-eiffel004.eiffel.gic.ericsson.se:8443/
